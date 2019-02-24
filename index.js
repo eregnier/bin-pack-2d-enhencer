@@ -72,7 +72,7 @@ export default class Optimizer {
                 h: piece.h
               }
               const hasBetterScore = y < piece.y
-              const respectConstraints = x + piece.w <= this.width
+              const respectConstraints = x + piece.w <= this.width + 1
               const hasSpace = !this.intersects(testPiece, this.pieces)
               if(hasSpace && hasBetterScore && respectConstraints) {
                 piece.x = x
@@ -89,7 +89,7 @@ export default class Optimizer {
   }
   rankPieces () {
     return this.pieces.sort((a, b) => {
-      return ((a.w * a.h) - (b.w * b.h))
+      return -((a.w * a.h) - (b.w * b.h))
     })
   }
   toCompareRect (rect) {
