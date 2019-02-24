@@ -1,0 +1,20 @@
+{
+  "name": "bin-pack-2d-enhencer",
+  "version": "0.0.1",
+  "description": "Algorithm to enhence bin 2D Shelf packing elements placements",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "algorithm",
+    "bin-packing",
+    "2d",
+    "optimization"
+  ],
+  "author": "utopman@gmail.com",
+  "license": "MIT",
+  "dependencies": {
+    "@mapbox/shelf-pack": "^3.2.0"
+  }
+}
