@@ -36,13 +36,7 @@ export default class Optimizer {
     return optimizedPieces
   }
   computeHeight (pieces) {
-    let max = 0
-    let h = 0
-    for (let piece of pieces) {
-      h = piece.y + piece.h
-      max = h > max ? h : max;
-    }
-    return max
+    return Math.max(...pieces.map(p => p.y + p.h))
   }
   getIgnorePoints (pieces) {
     const cache = {}
