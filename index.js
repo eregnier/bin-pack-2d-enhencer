@@ -9,20 +9,12 @@ export default class Optimizer {
   optimize () {
     this.pieces = this.preprocess(this.pieces)
     this.height = this.computeHeight(this.pieces)
-
     let hasChange = true
     while (hasChange) {
-      const orderedPieces = this.rankPieces().map(p => {
-        delete p._opti
-        return p
-      })
+      const orderedPieces = this.rankPieces()
       hasChange = this.tryOptimize(orderedPieces)
     }
-
-    return this.pieces.map(p => {
-      delete p._opti
-      return p
-    })
+    return this.pieces
   }
   preprocess (pieces) {
     const packer = new ShelfPack(this.width, this.height)
@@ -59,27 +51,25 @@ export default class Optimizer {
   tryOptimize (orderedPieces) {
     const ignorePoints = this.getIgnorePoints(orderedPieces)
     for (const piece of orderedPieces) {
-      if (!piece._opti) {
-        let maxWidth = this.width - piece.w + 1
-        let maxHeight = this.height - piece.h + 1
-        for (let y=0; y< maxHeight; y++) {
-          for (let x=0; x< maxWidth; x++) {
-            if (!ignorePoints[x + '-' + y]) {
-              const testPiece = {
-                x: x,
-                y: y,
-                w: piece.w,
-                h: piece.h
-              }
-              const hasBetterScore = y < piece.y
-              const respectConstraints = x + piece.w <= this.width + 1
-              const hasSpace = !this.intersects(testPiece, this.pieces)
-              if(hasSpace && hasBetterScore && respectConstraints) {
-                piece.x = x
-                piece.y = y
-                piece._opti = true
-                return true
-              }
+      let maxWidth = this.width - piece.w + 1
+      let maxHeight = this.height - piece.h + 1
+      for (let y=0; y< maxHeight; y++) {
+        for (let x=0; x< maxWidth; x++) {
+          const ignoreCurrentPiece = x>= piece.x && x <= piece.x + piece.w && y >= piece.y && y <= piece.y + piece.h
+          if (!ignorePoints[x + '-' + y] || ignoreCurrentPiece) {
+            const testPiece = {
+              x: x,
+              y: y,
+              w: piece.w,
+              h: piece.h
+            }
+            const hasBetterScore = y < piece.y
+            const respectConstraints = x + piece.w <= this.width
+            const hasSpace = !this.intersects(testPiece, this.pieces, piece)
+            if(hasSpace && hasBetterScore && respectConstraints) {
+              piece.x = x
+              piece.y = y
+              return true
             }
           }
         }
@@ -108,11 +98,12 @@ export default class Optimizer {
       r2.bottom <= r1.top
     )
   }
-  intersects (p, pieces) {
+  intersects (p, pieces, ignorePiece) {
     for (const piece of pieces) {
-      if(this.intersectRect(
+      const ignore = ignorePiece.x === piece.x && ignorePiece.y === piece.y && ignorePiece.w === piece.w && ignorePiece.h === piece.h
+      if(!ignore && this.intersectRect(
         this.toCompareRect(p),
-        this.toCompareRect(piece),
+        this.toCompareRect(piece)
       )) {
         return true
       }

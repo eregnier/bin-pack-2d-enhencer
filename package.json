@@ -1,6 +1,6 @@
 {
   "name": "bin-pack-2d-enhencer",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Algorithm to enhence bin 2D Shelf packing elements placements",
   "main": "index.js",
   "scripts": {
