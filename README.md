@@ -8,7 +8,7 @@ It is initially intended to move all possible pieces at bottom to the most top p
 sometimes finds more optimal dispositions of the pack that the Shelve algorithm.
 
 This algorithm is time expansive and has a great complexity. it should be used for small data set to remain practicable or user would have to be patient.
-It takes about 1 second to process a dataset of about 40 pieces.
+It takes up to 10 second to process a dataset of about 40 pieces. this algorithm is unfortunatly exponential and is quickly unreliable for larger datasets.
 
 Usage:
 
