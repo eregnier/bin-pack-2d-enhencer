@@ -22,13 +22,17 @@ Usage:
     {w: 30, h: 35},
   ]
 
-  pack = new Optimizer(pack, 140, 100000).optimize()
+  pack = new Optimizer(pack, 140, 100000).optimize([maxLength])
   /*
-  pack items have now a w(width) and h(height) attributes
+  pack items have now a x and h attributes
   [
-    {w: 10, h: 15},
-    {w: 20, h: 25},
-    {w: 30, h: 35},
+    {x: 0, y: 0},
+    {x: 10, y: 0},
+    {x: 30, y: 0},
   ]
   */
 ```
+
+optimize method has maxLength option that prevent processing dataset that contains more thant maxLength pieces (this algorithm is too complex)
+
+
