@@ -6,10 +6,14 @@ export default class Optimizer {
     this.width = width
     this.height = height
   }
-  optimize () {
+  optimize (maxLength) {
     this.pieces = this.preprocess(this.pieces)
+    if (maxLength && this.pieces.length > maxLength) {
+      return this.pieces
+    }
     this.height = this.computeHeight(this.pieces)
     let hasChange = true
+    //iterate optimization until no further optimization possible, this has great complexity
     while (hasChange) {
       const orderedPieces = this.rankPieces()
       hasChange = this.tryOptimize(orderedPieces)
@@ -18,12 +22,31 @@ export default class Optimizer {
   }
   preprocess (pieces) {
     const packer = new ShelfPack(this.width, this.height)
+
+    //keep extra key mechanisme
+    const dataHandler = {}
+    for (let i=0; i<pieces.length; i++) {
+      pieces[i].tid = i
+      dataHandler[i] = pieces[i]
+    }
+
+    //optimize using shelve loses keys
     const optimizedPieces = packer.pack(pieces.map(p => {
       return {
         w: parseInt(p.w),
-        h: parseInt(p.h)
+        h: parseInt(p.h),
+        id: p.tid
       }
-    }))
+    }), {inPlace: true})
+
+    //replace extra keys that were not updated
+    for (let i=0; i<optimizedPieces.length; i++) {
+      for (let key in dataHandler[i]) {
+        if (!optimizedPieces[i][key] && key !== 'tid') {
+          optimizedPieces[i][key] = dataHandler[i][key]
+        }
+      }
+    }
     packer.clear()
     return optimizedPieces
   }
@@ -44,6 +67,9 @@ export default class Optimizer {
   }
   tryOptimize (orderedPieces) {
     const ignorePoints = this.getIgnorePoints(orderedPieces)
+    //try every possible position for each piece in the space computing for each position if there is space available on the tested point.
+    //this is really expensive as this is quite exhaustive on available points
+    //some extra code may be used to avoid compute some points where we know points piece doest not fit
     for (const piece of orderedPieces) {
       let maxWidth = this.width - piece.w + 1
       let maxHeight = this.height - piece.h + 1
@@ -59,8 +85,8 @@ export default class Optimizer {
             }
             const hasBetterScore = y < piece.y
             const respectConstraints = x + piece.w <= this.width
-            const hasSpace = !this.intersects(testPiece, this.pieces, piece)
-            if(hasSpace && hasBetterScore && respectConstraints) {
+            const intersectPiece = this.intersects(testPiece, this.pieces, piece)
+            if(!intersectPiece && hasBetterScore && respectConstraints) {
               piece.x = x
               piece.y = y
               return true
@@ -99,9 +125,9 @@ export default class Optimizer {
         this.toCompareRect(p),
         this.toCompareRect(piece)
       )) {
-        return true
+        return piece
       }
     }
-    return false
+    return undefined
   }
 }
